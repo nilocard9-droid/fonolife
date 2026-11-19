@@ -2490,15 +2490,13 @@ main:focus, main:focus-visible { outline: none; }
     if (!linhas.length) linhas.push('Manter as estratégias trabalhadas nas sessões e comunicar ao fonoaudiólogo qualquer dificuldade observada.');
     return cab + '\n' + linhas.concat([o.fecho]).map(function (l) { return '- ' + l; }).join('\n');
   }
-  function orientTexto(ar, tp) { var v = st.rel[ar]['or_' + tp]; return v != null ? v : orientBase(ar, tp); }
+  /* texto automático: segue as alterações marcadas; se o profissional editar, vale a edição (apagar tudo volta ao automático) */
+  function orientTexto(ar, tp) { var v = st.rel[ar]['or_' + tp]; return v != null && String(v).trim() ? v : orientBase(ar, tp); }
   function blocoOrient(ar) {
     var at = orientAtivas(ar);
     if (!at.length) return '';
     return at.map(function (tp) {
-      var R = st.rel[ar], editado = R['or_' + tp] != null;
-      return '<div class="orient-campo"><div class="row" style="justify-content:space-between"><b>' + esc(FO[tp].titulo) + '</b>' +
-        '<span class="row" style="gap:6px">' + (editado ? '<span class="chip">editado</span>' : '<span class="chip lv-baixo">texto base</span>') +
-        '<button type="button" class="lnk" data-regen="' + tp + '">Gerar de novo a partir das alterações</button></span></div>' +
+      return '<div class="orient-campo"><b>' + esc(FO[tp].titulo) + '</b>' +
         '<label class="f"><span class="sr">' + esc(FO[tp].titulo) + '</span><textarea data-f="or_' + tp + '" rows="8">' + esc(orientTexto(ar, tp)) + '</textarea></label></div>';
     }).join('');
   }
