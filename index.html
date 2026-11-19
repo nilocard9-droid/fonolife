@@ -558,6 +558,14 @@ main:focus, main:focus-visible { outline: none; }
 .rail-tema { justify-content: flex-start; }
 .so-seg { margin-top: 8px; }
 
+/* diagnóstico fonoaudiológico sugerido */
+.diag-lista { display: grid; gap: 8px; }
+.diag { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); cursor: pointer; }
+.diag input { accent-color: var(--acc); width: 18px; height: 18px; margin-top: 2px; flex: none; }
+.diag b { display: block; font-size: 15px; }
+.diag small { display: block; color: var(--ink-3); font-size: 12.5px; margin-top: 2px; }
+.diag.on { border-color: var(--acc); background: var(--acc-tint); }
+
 </style>
 </head>
 <body>
@@ -1268,14 +1276,14 @@ main:focus, main:focus-visible { outline: none; }
   root.FonoPlano = {
     neuro: [
       { sit: 'Atraso de linguagem / transtorno do desenvolvimento da linguagem', itens: [
-        'Estimulação de linguagem naturalística (modelagem, expansão e reformulação das falas da criança)',
+        'Estimulação de linguagem (modelagem, expansão e reformulação das falas da criança)',
         'Intervenção mediada pelos pais (treinamento parental em estratégias de comunicação, como o programa "It Takes Two to Talk")',
         'Ampliação de vocabulário por categorias semânticas e rotinas funcionais',
         'Leitura compartilhada dialógica',
         'Trabalho morfossintático (expansão de frases, estrutura gramatical)',
         'Desenvolvimento de narrativa (sequência de fatos e histórias)'] },
       { sit: 'TEA e comunicação social', itens: [
-        'Intervenção naturalística desenvolvimental-comportamental (NDBI), como o Modelo Denver de Intervenção Precoce (ESDM) ou JASPER',
+        'Intervenção desenvolvimental-comportamental (NDBI), como o Modelo Denver de Intervenção Precoce (ESDM) ou JASPER',
         'Treino de atenção compartilhada, imitação e intenção comunicativa',
         'Comunicação Alternativa e Aumentativa (PECS, pranchas, dispositivos com voz)',
         'Habilidades pragmáticas e conversacionais (troca de turnos, manutenção de tópico)',
@@ -1745,7 +1753,8 @@ main:focus, main:focus-visible { outline: none; }
       '<div class="card form">' + campo('queixa', 'Queixa principal', R.queixa, 'area', 'full') + campo('historia', 'Anamnese e histórico', R.historia, 'area', 'full') + '</div>' +
       '<div class="card"><h2 style="font-size:20px">Avaliação</h2><p class="vazio" style="margin:4px 0 0">Cada tópico começa com a descrição normal para a idade. Marque os sinais observados: a descrição muda sozinha.</p>' + avisoFaixa(ar) + S[ar].map(function (t) { return blocoTopico(R, t); }).join('') + '</div>' +
       '<div class="card"><h2 style="font-size:20px">Instrumentos aplicados</h2>' + listaAplicados(ar) + '</div>' +
-      '<div class="card form">' + campo('hipotese', 'Conclusão / hipótese diagnóstica fonoaudiológica', R.hipotese, 'area', 'full') + '</div>' +
+      '<div class="card"><h2 style="font-size:20px">Diagnóstico Fonoaudiológico</h2><div id="diag-sug">' + blocoDiag(ar) + '</div>' +
+      '<div class="form" style="margin-top:12px">' + campo('hipotese', 'Diagnóstico fonoaudiológico (escrita livre)', R.hipotese, 'area', 'full') + '</div></div>' +
       '<div class="card"><h2 style="font-size:20px">Plano Terapêutico</h2><p class="vazio" style="margin:4px 0 12px">Escolha as abordagens preconizadas para cada situação clínica e descreva o plano personalizado.</p>' +
       PLANO[ar].map(function (g, gi) {
         var n = g.itens.filter(function (_, i) { return (R.plano || {})['g' + gi + '_' + i]; }).length;
@@ -1792,7 +1801,8 @@ main:focus, main:focus-visible { outline: none; }
     if (ar === 'neuro') h += marcosHTML();
     h += comparacaoHTML(ar);
     if (M.esc.length) h += '<h3>Instrumentos e escores</h3><table><tr><th>Instrumento</th><th>Resultado</th><th>Interpretação</th></tr>' + M.esc.map(function (x) { return '<tr><td><b>' + esc(x[0].sigla) + '</b><br><span style="color:#6F6878;font-size:12px">' + esc(x[0].nome) + '</span></td><td>' + esc(x[1].valorTxt) + '</td><td>' + esc(x[1].faixa.titulo) + (x[1].faixa.texto ? '. <span style="color:#6F6878">' + esc(x[1].faixa.texto) + '</span>' : '') + '</td></tr>'; }).join('') + '</table>';
-    if (R.hipotese) h += '<h3>Conclusão fonoaudiológica</h3><p>' + esc(R.hipotese) + '</p>';
+    var dg = diagEscolhidos(ar);
+    if (dg.length || R.hipotese) h += '<h3>Diagnóstico fonoaudiológico</h3>' + (dg.length ? '<ul>' + dg.map(function (d) { return '<li>' + esc(d) + '.</li>'; }).join('') + '</ul>' : '') + (R.hipotese ? '<p>' + esc(R.hipotese) + '</p>' : '');
     if (M.plano.length || M.cond.length || R.condLivre || R.freq || R.duracao || R.reav) {
       h += '<h3>Plano terapêutico</h3>';
       M.plano.forEach(function (x) { h += '<p><b>' + esc(x[0]) + ':</b> ' + esc(x[1].join('; ')) + '.</p>'; });
@@ -1850,7 +1860,8 @@ main:focus, main:focus-visible { outline: none; }
     var cmp = comparacao(ar);
     if (cmp) { t.push('EVOLUÇÃO EM RELAÇÃO A ' + dataBR(cmp.anterior.data)); cmp.linhas.forEach(function (l) { t.push('- ' + l[0] + ': antes ' + l[1] + ' | agora ' + l[2]); }); t.push(''); }
     if (M.esc.length) { t.push('INSTRUMENTOS E ESCORES'); M.esc.forEach(function (x) { t.push('- ' + linhaEscore(x[0], x[1])); }); t.push(''); }
-    if (R.hipotese) t.push('CONCLUSÃO FONOAUDIOLÓGICA', R.hipotese, '');
+    var dg2 = diagEscolhidos(ar);
+    if (dg2.length || R.hipotese) { t.push('DIAGNÓSTICO FONOAUDIOLÓGICO'); dg2.forEach(function (d) { t.push('- ' + d + '.'); }); if (R.hipotese) t.push(R.hipotese); t.push(''); }
     if (M.plano.length || M.cond.length || R.condLivre || R.freq || R.duracao || R.reav) {
       t.push('PLANO TERAPÊUTICO');
       M.plano.forEach(function (x) { t.push(x[0] + ': ' + x[1].join('; ') + '.'); });
@@ -2301,6 +2312,89 @@ main:focus, main:focus-visible { outline: none; }
     box.innerHTML = h;
   }
 
+
+  /* ================= DIAGNÓSTICO FONOAUDIOLÓGICO SUGERIDO =================
+   * A partir dos sinais marcados em cada tópico, dos escores e dos marcos, sugere as hipóteses
+   * principais com grau (leve, moderado, grave). O fonoaudiólogo escolhe o que entra no laudo
+   * e completa em escrita livre. As sugestões são apoio: a decisão diagnóstica é do profissional. */
+  function selecionados(ar, k) {
+    var t = S[ar].filter(function (x) { return x.k === k; })[0]; if (!t) return [];
+    var m = marcados(st.rel[ar], k), f = faixaPac(t);
+    return t.sinais.filter(function (_, i) { return m[i]; }).concat(S.extras(t, f).filter(function (_, i) { return m['x' + f + '_' + i]; }));
+  }
+  function tem(lista, re) { return lista.some(function (x) { return re.test(x); }); }
+  function grau(n) { return n <= 2 ? 'leve' : n <= 4 ? 'moderado' : 'grave'; }
+  function res(id) { var s0 = porId(id); return s0 ? resultado(s0) : null; }
+  function sugerirDiag(ar) {
+    var out = [];
+    var add = function (k, txt, base0) { out.push({ k: k, txt: txt, base: base0 }); };
+    if (ar === 'neuro') {
+      var rec = selecionados(ar, 'ling_rec'), exp = selecionados(ar, 'ling_exp'), soc = selecionados(ar, 'social'), fala = selecionados(ar, 'fala'),
+        sen = selecionados(ar, 'sensorial'), mo = selecionados(ar, 'mo'), aud = selecionados(ar, 'audicao');
+      var mchat = res('mchat'), cars = res('cars'), sup = res('suporte'), ics = res('ics'), snap = res('snap'), alim = res('alim');
+      if (rec.length && exp.length) add('ling', 'Alteração de linguagem receptiva e expressiva, grau ' + grau(rec.length + exp.length - 1), 'sinais em compreensão e expressão');
+      else if (exp.length) add('ling', 'Alteração de linguagem expressiva, grau ' + grau(exp.length), exp.length + ' sinal(is) em linguagem expressiva');
+      else if (rec.length) add('ling', 'Alteração de linguagem receptiva, grau ' + grau(rec.length), rec.length + ' sinal(is) em compreensão');
+      var teaEsc = (mchat && /risco/i.test(mchat.faixa.titulo) && !/baixo/i.test(mchat.faixa.titulo)) || (cars && cars.valor >= 30) || sup;
+      if (soc.length || teaEsc) {
+        var g = sup ? ['', 'leve (nível 1 de suporte)', 'moderado (nível 2 de suporte)', 'grave (nível 3 de suporte)'][sup.valor] : cars && cars.valor >= 37 ? 'grave' : cars && cars.valor >= 30 ? 'moderado' : grau(soc.length);
+        add('tea', 'Alteração da comunicação social e da pragmática' + (teaEsc ? ', com sinais compatíveis com Transtorno do Espectro Autista' : '') + ', grau ' + g,
+          [soc.length ? soc.length + ' sinal(is) sociais' : '', mchat ? 'M-CHAT-R/F ' + mchat.valorTxt : '', cars ? 'CARS ' + cars.valorTxt : ''].filter(Boolean).join(' · '));
+      }
+      if (tem(fala, /inconsistentes|sequência motora|tateio/)) add('apraxia', 'Sinais sugestivos de apraxia de fala na infância', 'erros inconsistentes, sequência motora ou tateio');
+      if (tem(fala, /disartria/)) add('disartria', 'Sinais sugestivos de disartria', 'fala imprecisa e lentificada');
+      if (tem(fala, /disfluências/)) add('fluencia', 'Disfluência de fala (investigar gagueira)', 'disfluências gagas');
+      if (tem(fala, /rouca|soprosa|nasalidade/)) add('voz', 'Alteração de voz e/ou ressonância', 'voz ou ressonância alterada');
+      var fono = fala.filter(function (x) { return !/inconsistentes|sequência motora|tateio|disartria|disfluências|rouca|soprosa|nasalidade|velocidade/.test(x); });
+      if (fono.length || (ics && ics.valor < 3.5)) {
+        var gf = ics ? (ics.valor >= 4.5 ? 'leve' : ics.valor >= 3.5 ? 'moderado' : 'grave') : grau(fono.length);
+        add('tsf', 'Transtorno dos sons da fala (fonético-fonológico), grau ' + gf, [fono.length ? fono.length + ' sinal(is) de fala' : '', ics ? 'ICS ' + ics.valorTxt : ''].filter(Boolean).join(' · '));
+      }
+      var mof = mo.filter(function (x) { return !/seletividade|recusa|engasgos|sucção|mamad|escape de leite/.test(x); }), ali = mo.filter(function (x) { return /seletividade|recusa|engasgos|sucção|mamad|escape de leite/.test(x); });
+      if (mof.length) add('mo', 'Alteração miofuncional orofacial, grau ' + grau(mof.length), mof.length + ' sinal(is) de motricidade orofacial');
+      if (ali.length || (alim && alim.faixa.nivel !== 'baixo')) add('alim', 'Dificuldade alimentar' + (tem(ali, /seletividade/) || alim ? ' com seletividade alimentar' : '') + ', grau ' + grau(ali.length + (alim && alim.faixa.nivel === 'alto' ? 3 : alim ? 1 : 0)),
+        [ali.length ? ali.length + ' sinal(is) de alimentação' : '', alim ? 'inventário alimentar: ' + alim.faixa.titulo.toLowerCase() : ''].filter(Boolean).join(' · '));
+      if (sen.length) add('sensorial', 'Alterações de processamento sensorial e de comportamento (avaliação conjunta com terapia ocupacional)', sen.length + ' sinal(is) sensoriais');
+      if (aud.length) add('audicao', 'Necessidade de investigação audiológica', 'sinais em audição');
+      if (snap && snap.faixa.nivel !== 'baixo') add('tdah', 'Sintomas de desatenção e/ou hiperatividade (encaminhar para avaliação médica)', 'SNAP-IV: ' + snap.valorTxt);
+      var rm = typeof resultadoMarcos === 'function' ? resultadoMarcos() : null;
+      if (rm && rm.dom.L && rm.dom.L.status !== 'ok') add('marcos', 'Marcos de comunicação e linguagem abaixo do esperado para a faixa de ' + FM.rotuloIdade(rm.faixa), 'marcos do desenvolvimento');
+      if (!out.length) add('normal', 'Linguagem, fala e comunicação dentro do esperado para a idade', 'nenhum sinal marcado');
+    } else {
+      var cli = selecionados(ar, 'clinico'), fun = selecionados(ar, 'funcional'), sin = selecionados(ar, 'sinais'), ins = selecionados(ar, 'instrumental'), mos = selecionados(ar, 'mo');
+      var doss = res('doss'), guss = res('guss'), pas = res('pas'), fois = res('fois'), eat = res('eat10'), ped = res('pedieat');
+      var oral = fun.filter(function (x) { return /escape oral|captação|preparo|trânsito oral|ejeção|cavidade oral|mastigação/.test(x); });
+      var far = fun.filter(function (x) { return /prematuro|disparo|elevação laríngea|múltiplas|refluxo nasal|parado na garganta/.test(x); }).length + sin.length;
+      var gd = null, fonte = '';
+      if (doss) { gd = { 7: null, 6: 'funcional (independência modificada)', 5: 'leve', 4: 'leve a moderada', 3: 'moderada', 2: 'moderadamente grave', 1: 'grave' }[doss.valor]; fonte = 'DOSS nível ' + doss.valor; }
+      else if (guss) { gd = guss.valor >= 20 ? null : guss.valor >= 15 ? 'leve' : guss.valor >= 10 ? 'moderada' : 'grave'; fonte = 'GUSS ' + guss.valorTxt; }
+      else { var n = oral.length + far + mos.length; gd = n ? (sin.length >= 2 || n >= 6 ? 'grave' : n >= 3 || sin.length ? 'moderada' : 'leve') : null; fonte = n ? n + ' sinal(is) clínicos' : ''; }
+      var aspira = (pas && pas.valor >= 6) || tem(ins, /aspiração/), silente = (pas && pas.valor === 8) || tem(ins, /silente/), penetra = (pas && pas.valor >= 2 && pas.valor <= 5) || tem(ins, /penetração/);
+      if (gd || aspira || penetra) {
+        if (!gd) gd = aspira ? 'grave' : 'moderada';
+        var fases = [oral.length ? 'oral' : '', far || aspira || penetra ? 'faríngea' : ''].filter(Boolean);
+        var lac = faixaPac(S[ar][0]) === 'lac';
+        add('disfagia', (lac ? 'Disfagia infantil' : 'Disfagia orofaríngea') + ' ' + gd + (fases.length ? ', com alteração da' + (fases.length > 1 ? 's fases ' + fases.join(' e ') : ' fase ' + fases[0]) : '') +
+          (silente ? ', com aspiração laringotraqueal silente' : aspira ? ', com aspiração laringotraqueal' : penetra ? ', com penetração laríngea' : '') +
+          (tem(cli, /neurológica/) ? ', de provável origem neurogênica' : tem(cli, /cabeça e pescoço/) ? ', de provável origem mecânica' : ''),
+          [fonte, pas ? 'PAS nível ' + pas.valor : '', fois ? 'FOIS nível ' + fois.valor : ''].filter(Boolean).join(' · '));
+      }
+      if ((eat && eat.valor >= 3) || (ped && ped.valor >= 4)) add('rastreio', 'Rastreio positivo para risco de disfagia (' + (eat ? 'EAT-10 ' + eat.valorTxt : 'Pedi-EAT-10 ' + ped.valorTxt) + ')', 'rastreio');
+      if (tem(cli, /traqueostomia|intubação/)) add('via-aerea', 'Disfagia associada a via aérea artificial (intubação prolongada / traqueostomia)', 'condição clínica');
+      if (!out.length) add('normal', 'Deglutição funcional, sem sinais clínicos de disfagia nas consistências avaliadas', 'nenhum sinal marcado');
+    }
+    return out;
+  }
+  function blocoDiag(ar) {
+    var R = st.rel[ar], sug = sugerirDiag(ar), sel = R.diag || {};
+    return '<p class="vazio" style="margin:4px 0 10px">Sugestões geradas a partir dos sinais marcados, dos escores e dos marcos. Marque o que entra no laudo e complete em escrita livre.</p>' +
+      '<div class="diag-lista">' + sug.map(function (d) {
+        return '<label class="diag ' + (sel[d.k] ? 'on' : '') + '"><input type="checkbox" data-diag="' + d.k + '"' + (sel[d.k] ? ' checked' : '') + '><span><b>' + esc(d.txt) + '</b>' + (d.base ? '<small>Base: ' + esc(d.base) + '</small>' : '') + '</span></label>';
+      }).join('') + '</div>';
+  }
+  function diagEscolhidos(ar) { var sel = st.rel[ar].diag || {}; return sugerirDiag(ar).filter(function (d) { return sel[d.k]; }).map(function (d) { return d.txt; }); }
+  function atualizarDiag(ar) { var b = document.getElementById('diag-sug'); if (b) b.innerHTML = blocoDiag(ar); }
+
   function telaSobre() {
     var h = '<p class="eyebrow">Sobre</p><h1 style="font-size:36px">FonoLife ' + F.versao + '</h1><p class="lead">Apoio à avaliação fonoaudiológica. Os escores não substituem o julgamento clínico nem o diagnóstico médico. Os dados ficam só neste navegador (localStorage) e nada é enviado para a internet.</p>' +
       '<p class="lead">Instrumentos com direitos autorais (por exemplo, CARS) exigem a folha de registro original para aplicação formal; aqui aparecem apenas os domínios para registro do escore.</p><h2 class="sec-title">Referências</h2><div class="card"><ul>';
@@ -2482,8 +2576,10 @@ main:focus, main:focus-visible { outline: none; }
         R.s[p[0]] = m;
         var top = el.closest('.topico'), t = S[ar].filter(function (x) { return x.k === p[0]; })[0], n = Object.keys(m).length;
         var d = top.querySelector('[data-desc]'); d.textContent = desc(t, m); d.classList.toggle('alt', n > 0);
+        atualizarDiag(ar);
         var c = top.querySelector('[data-cont]'); c.textContent = n ? n + ' sinal(is)' : 'Normal'; c.className = 'chip ' + (n ? 'lv-alto' : 'lv-baixo');
       } else if (el.hasAttribute('data-comp')) { R.c = R.c || {}; R.c[el.getAttribute('data-comp')] = el.value; }
+      else if (el.hasAttribute('data-diag')) { R.diag = R.diag || {}; if (el.checked) R.diag[el.getAttribute('data-diag')] = true; else delete R.diag[el.getAttribute('data-diag')]; el.closest('.diag').classList.toggle('on', el.checked); }
       else if (el.hasAttribute('data-plano')) { R.plano = R.plano || {}; if (el.checked) R.plano[el.getAttribute('data-plano')] = true; else delete R.plano[el.getAttribute('data-plano')]; }
       else if (el.hasAttribute('data-cond')) { R.cond = R.cond || {}; R.cond[el.getAttribute('data-cond')] = el.checked; } else R[el.getAttribute('data-f')] = el.value;
       desenharDoc(ar);
