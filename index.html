@@ -566,6 +566,11 @@ main:focus, main:focus-visible { outline: none; }
 .diag small { display: block; color: var(--ink-3); font-size: 12.5px; margin-top: 2px; }
 .diag.on { border-color: var(--acc); background: var(--acc-tint); }
 
+/* campos de orientação (pais, escola, cuidadores) */
+.orient-campo { margin-top: 12px; padding: 12px 14px; border-radius: 14px; border: 2px solid color-mix(in srgb, var(--acc) 40%, var(--line)); background: color-mix(in srgb, var(--acc) 5%, var(--surface)); }
+.orient-campo b { font: 600 17px var(--serif); color: var(--acc); }
+.orient-campo textarea { min-height: 160px !important; margin-top: 8px; }
+
 </style>
 </head>
 <body>
@@ -1347,6 +1352,63 @@ main:focus, main:focus-visible { outline: none; }
 })(typeof window !== 'undefined' ? window : globalThis);
 
 /*
+ * FonoLife — textos base de orientação (pais/família, escola, cuidadores e equipe).
+ * Cada tópico com sinal marcado acrescenta suas orientações. O fonoaudiólogo edita depois.
+ */
+(function (root) {
+  'use strict';
+  var O = {
+    pais: {
+      titulo: 'Orientações aos pais e à família',
+      gatilho: /parental|familiar|família|pais/i,
+      abertura: 'Orientações para o dia a dia em casa, de acordo com a avaliação fonoaudiológica:',
+      topicos: {
+        ling_rec: 'Fale de frente para a criança, com frases curtas e claras, apoiando com gestos e objetos. Dê uma instrução por vez e confirme se ela compreendeu.',
+        ling_exp: 'Nomeie objetos e ações durante as rotinas (banho, refeição, brincadeira). Repita e amplie o que a criança fala (se ela diz "bola", diga "bola azul"). Espere a resposta e evite antecipar os pedidos antes que ela tente se comunicar.',
+        social: 'Siga o interesse da criança no brincar e participe da brincadeira. Valorize o olhar, o apontar e a troca de turnos. Use rotinas previsíveis, com apoio visual quando possível.',
+        fala: 'Não peça para a criança repetir nem corrija de forma insistente; repita a palavra correta com naturalidade. Leia livros juntos e brinque com rimas, sons e músicas.',
+        sensorial: 'Observe e respeite os limites sensoriais da criança. Antecipe mudanças de rotina e ofereça pausas e ambientes mais calmos quando ela estiver desregulada.',
+        mo: 'Estimule a respiração pelo nariz. Retire gradualmente chupeta, mamadeira e outros hábitos orais. Ofereça alimentos de diferentes texturas sem forçar, em refeições à mesa, em ambiente tranquilo e sem telas.',
+        audicao: 'Realize a avaliação audiológica solicitada e observe como a criança reage a sons e à voz no dia a dia.'
+      },
+      fecho: 'Reduza o tempo de telas e priorize momentos de interação. Mantenha a frequência das sessões e realize as atividades propostas para casa.'
+    },
+    escola: {
+      titulo: 'Orientações à escola',
+      gatilho: /escola/i,
+      abertura: 'Sugestões de apoio no ambiente escolar, de acordo com a avaliação fonoaudiológica:',
+      topicos: {
+        ling_rec: 'Dar instruções curtas, uma etapa por vez, com apoio visual (imagens, gestos, quadro de rotina). Verificar a compreensão individualmente.',
+        ling_exp: 'Oferecer tempo extra para as respostas orais e valorizar todas as tentativas de comunicação. Permitir respostas por apontar, figuras ou Comunicação Alternativa quando necessário.',
+        social: 'Favorecer a interação com os colegas em pequenos grupos mediados pelo adulto. Antecipar mudanças na rotina com agenda visual e ensinar as regras das brincadeiras de forma explícita.',
+        fala: 'Evitar correções da fala em público. Repetir a forma correta com naturalidade e posicionar a criança perto do professor.',
+        sensorial: 'Reduzir estímulos excessivos (barulho, luz, movimento) e oferecer um espaço de regulação e pausas programadas.',
+        mo: 'Na alimentação escolar, respeitar a seletividade sem forçar e apresentar novos alimentos de forma gradual. Comunicar à família intercorrências como engasgos.',
+        audicao: 'Posicionar a criança perto do professor e longe de fontes de ruído; falar de frente e confirmar se a mensagem foi compreendida.'
+      },
+      fecho: 'Manter comunicação frequente com a família e o fonoaudiólogo. Considerar adaptações pedagógicas e plano educacional individualizado quando indicado.'
+    },
+    cuidadores: {
+      titulo: 'Orientações aos cuidadores e à equipe',
+      gatilho: /cuidadores/i,
+      abertura: 'Cuidados na alimentação, de acordo com a avaliação da deglutição:',
+      topicos: {
+        clinico: 'Oferecer alimento apenas com o paciente alerta e colaborativo. Se estiver sonolento ou agitado, adiar a refeição.',
+        via: 'Manter os cuidados com a via alternativa de alimentação e não ofertar nada pela boca sem liberação fonoaudiológica.',
+        mo: 'Realizar higiene oral rigorosa após as refeições e pelo menos duas vezes ao dia, inclusive em pacientes sem alimentação pela boca. Verificar a adaptação de próteses dentárias.',
+        funcional: 'Oferecer pequenos volumes, em ritmo lento, aguardando a deglutição completa antes da próxima oferta. Evitar distrações e conversar durante a refeição.',
+        sinais: 'Interromper a oferta diante de tosse, engasgo, voz molhada ou falta de ar e comunicar a equipe. Ficar atento a sinais de pneumonia: febre, tosse persistente e piora da respiração.',
+        instrumental: 'Seguir rigorosamente as consistências e as estratégias indicadas no exame da deglutição.'
+      },
+      fixos: ['Manter o paciente sentado a 90 graus (ou com a cabeceira elevada a pelo menos 45 graus) durante e até 30 minutos após as refeições.'],
+      lactente: 'Ofertar em posição semielevada, respeitando pausas durante a mamada (pacing), e observar sinais de cansaço e estresse (engasgo, mudança de cor, respiração acelerada).',
+      fecho: 'Consultar a equipe sobre a forma de administrar os medicamentos (triturados ou em forma líquida). Manter o acompanhamento fonoaudiológico para progressão segura da dieta.'
+    }
+  };
+  root.FonoOrient = O;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/*
  * FonoLife — logo viva.
  * Envolve cada <img data-logo-vivo> num palco 3D: a logo flutua devagar, inclina na
  * direção do mouse (ou do dedo). Sem brilho nem sombra branca atrás.
@@ -1763,9 +1825,10 @@ main:focus, main:focus-visible { outline: none; }
       }).join('') +
       '<details class="plano-grupo"' + (R.cond && Object.keys(R.cond).some(function (k) { return R.cond[k]; }) ? ' open' : '') + '><summary><span>Encaminhamentos e exames</span></summary><div class="checks">' +
       CONDUTAS[ar].map(function (c, i) { return '<label><input type="checkbox" data-cond="' + i + '"' + (R.cond && R.cond[i] ? ' checked' : '') + '>' + esc(c) + '</label>'; }).join('') + '</div></details>' +
+      '<div id="orient-box">' + blocoOrient(ar) + '</div>' +
       '<div class="form" style="margin-top:14px">' + campo('condLivre', 'Plano terapêutico personalizado (descrição livre: objetivos, estratégias, materiais)', R.condLivre, 'area', 'full') +
       campo('freq', 'Frequência das sessões', R.freq) + campo('duracao', 'Duração prevista do plano', R.duracao) + campo('reav', 'Reavaliação em', R.reav) +
-      campo('orient', 'Orientações à família / equipe', R.orient, 'area', 'full') + campo('obs', 'Observações', R.obs, 'area', 'full') + '</div></div>' +
+      campo('orient', 'Outras orientações', R.orient, 'area', 'full') + campo('obs', 'Observações', R.obs, 'area', 'full') + '</div></div>' +
       '<div class="card fim-pdf"><div><b style="font:600 19px var(--serif)">Análise concluída?</b><p class="vazio" style="margin:4px 0 0">Revise e edite o texto inteiro na visão geral, ou gere o PDF direto: abre a impressão; escolha "Salvar como PDF".</p></div>' +
       '<div class="row"><button class="btn primary" data-salvar-hist>' + iconeHist(ar) + 'Salvar no Histórico</button><a class="btn" href="#/visao/' + ar + '">' + IC.doc + 'Visão Geral</a><button class="btn" data-pdf>' + IC.print + 'Gerar PDF</button><button class="btn" data-copiar-rel>' + IC.copy + 'Copiar Texto</button></div></div>' +
       '</div><article class="doc" id="doc"></article></div>';
@@ -1810,7 +1873,8 @@ main:focus, main:focus-visible { outline: none; }
       if (M.cond.length) h += '<p><b>Encaminhamentos e exames:</b> ' + esc(M.cond.join('; ')) + '.</p>';
       if (R.freq || R.duracao || R.reav) h += '<ul>' + (R.freq ? '<li>Frequência: ' + esc(R.freq) + '</li>' : '') + (R.duracao ? '<li>Duração prevista: ' + esc(R.duracao) + '</li>' : '') + (R.reav ? '<li>Reavaliação em ' + esc(R.reav) + '</li>' : '') + '</ul>';
     }
-    if (R.orient) h += '<h3>Orientações</h3><p>' + esc(R.orient) + '</p>';
+    orientDoc(ar).forEach(function (o) { h += '<h3>' + esc(o[0]) + '</h3><p>' + esc(o[1]) + '</p>'; });
+    if (R.orient) h += '<h3>Outras orientações</h3><p>' + esc(R.orient) + '</p>';
     if (R.obs) h += '<h3>Observações</h3><p>' + esc(R.obs) + '</p>';
     if (!M.ident.length && !M.secs.length && !M.esc.length) h += '<p style="color:#8A8392;margin-top:20px">Preencha os campos ao lado e aplique os instrumentos. O relatório se monta aqui.</p>';
     h += '<div class="ass"><i></i><b>' + esc(M.pr.nome || 'Fonoaudiólogo(a)') + '</b><br>' + (M.pr.crfa ? 'CRFa ' + esc(M.pr.crfa) : '') + '<br><span style="color:#6F6878">' + (st.pac.data ? dataBR(st.pac.data) : '') + '</span></div>';
@@ -1870,7 +1934,8 @@ main:focus, main:focus-visible { outline: none; }
       if (R.freq) t.push('- Frequência: ' + R.freq); if (R.duracao) t.push('- Duração prevista: ' + R.duracao); if (R.reav) t.push('- Reavaliação em ' + R.reav);
       t.push('');
     }
-    if (R.orient) t.push('ORIENTAÇÕES', R.orient, '');
+    orientDoc(ar).forEach(function (o) { t.push(o[0].toUpperCase(), o[1], ''); });
+    if (R.orient) t.push('OUTRAS ORIENTAÇÕES', R.orient, '');
     if (R.obs) t.push('OBSERVAÇÕES', R.obs, '');
     t.push(M.pr.nome ? M.pr.nome + (M.pr.crfa ? ' — CRFa ' + M.pr.crfa : '') : '', st.pac.data ? dataBR(st.pac.data) : '');
     return t.join('\n').trim();
@@ -2395,6 +2460,55 @@ main:focus, main:focus-visible { outline: none; }
   function diagEscolhidos(ar) { var sel = st.rel[ar].diag || {}; return sugerirDiag(ar).filter(function (d) { return sel[d.k]; }).map(function (d) { return d.txt; }); }
   function atualizarDiag(ar) { var b = document.getElementById('diag-sug'); if (b) b.innerHTML = blocoDiag(ar); }
 
+
+  /* ================= ORIENTAÇÕES (pais, escola, cuidadores) =================
+   * Abrem como campos próprios quando o profissional marca a orientação no plano. O texto base
+   * é montado a partir dos tópicos com alterações marcadas; depois de editado, fica o texto do
+   * profissional (botão "Gerar de novo" volta ao texto base). */
+  var FO = window.FonoOrient;
+  function orientAtivas(ar) {
+    var R = st.rel[ar], marcadas = [];
+    CONDUTAS[ar].forEach(function (c, i) { if (R.cond && R.cond[i]) marcadas.push(c); });
+    PLANO[ar].forEach(function (g, gi) { g.itens.forEach(function (it, i) { if ((R.plano || {})['g' + gi + '_' + i]) marcadas.push(it); }); });
+    var tipos = ar === 'neuro' ? ['pais', 'escola'] : ['cuidadores'];
+    return tipos.filter(function (tp) { return marcadas.some(function (m) { return FO[tp].gatilho.test(m); }); });
+  }
+  function orientBase(ar, tp) {
+    var o = FO[tp], R = st.rel[ar], linhas = [];
+    S[ar].forEach(function (t) {
+      var n = Object.keys(marcados(R, t.k)).filter(function (k) { return marcados(R, t.k)[k]; }).length;
+      if (n && o.topicos[t.k]) linhas.push(o.topicos[t.k]);
+    });
+    if (tp === 'cuidadores') {
+      var iddsi = res('iddsi');
+      linhas.unshift((iddsi ? 'Oferecer alimentos e líquidos nas consistências prescritas: ' + iddsi.faixa.texto.replace(/\.$/, '') + '.' : 'Oferecer alimentos e líquidos apenas na consistência prescrita pela fonoaudiologia.'));
+      o.fixos.forEach(function (f) { linhas.push(f); });
+      if (faixaPac(S[ar][0]) === 'lac') linhas.push(o.lactente);
+    }
+    var dg = diagEscolhidos(ar);
+    var cab = o.abertura + (dg.length ? ' (' + dg.join('; ').toLowerCase() + ')' : '');
+    if (!linhas.length) linhas.push('Manter as estratégias trabalhadas nas sessões e comunicar ao fonoaudiólogo qualquer dificuldade observada.');
+    return cab + '\n' + linhas.concat([o.fecho]).map(function (l) { return '- ' + l; }).join('\n');
+  }
+  function orientTexto(ar, tp) { var v = st.rel[ar]['or_' + tp]; return v != null ? v : orientBase(ar, tp); }
+  function blocoOrient(ar) {
+    var at = orientAtivas(ar);
+    if (!at.length) return '';
+    return at.map(function (tp) {
+      var R = st.rel[ar], editado = R['or_' + tp] != null;
+      return '<div class="orient-campo"><div class="row" style="justify-content:space-between"><b>' + esc(FO[tp].titulo) + '</b>' +
+        '<span class="row" style="gap:6px">' + (editado ? '<span class="chip">editado</span>' : '<span class="chip lv-baixo">texto base</span>') +
+        '<button type="button" class="lnk" data-regen="' + tp + '">Gerar de novo a partir das alterações</button></span></div>' +
+        '<label class="f"><span class="sr">' + esc(FO[tp].titulo) + '</span><textarea data-f="or_' + tp + '" rows="8">' + esc(orientTexto(ar, tp)) + '</textarea></label></div>';
+    }).join('');
+  }
+  function atualizarOrient(ar) {
+    var b = document.getElementById('orient-box'); if (!b) return;
+    if (b.contains(document.activeElement)) return; /* não atrapalha quem está digitando */
+    b.innerHTML = blocoOrient(ar);
+  }
+  function orientDoc(ar) { return orientAtivas(ar).map(function (tp) { return [FO[tp].titulo, orientTexto(ar, tp)]; }); }
+
   function telaSobre() {
     var h = '<p class="eyebrow">Sobre</p><h1 style="font-size:36px">FonoLife ' + F.versao + '</h1><p class="lead">Apoio à avaliação fonoaudiológica. Os escores não substituem o julgamento clínico nem o diagnóstico médico. Os dados ficam só neste navegador (localStorage) e nada é enviado para a internet.</p>' +
       '<p class="lead">Instrumentos com direitos autorais (por exemplo, CARS) exigem a folha de registro original para aplicação formal; aqui aparecem apenas os domínios para registro do escore.</p><h2 class="sec-title">Referências</h2><div class="card"><ul>';
@@ -2542,6 +2656,8 @@ main:focus, main:focus-visible { outline: none; }
       render(); toast('Auditoria apagada'); return;
     }
     if (e.target.closest('[data-novo]')) { confirmarNovo(); return; }
+    var rg = e.target.closest('[data-regen]');
+    if (rg) { var arr = rota()[1]; delete st.rel[arr]['or_' + rg.getAttribute('data-regen')]; salvar(); var bx = document.getElementById('orient-box'); if (bx) bx.innerHTML = blocoOrient(arr); desenharDoc(arr); return; }
     var at0 = e.target.closest('[data-atalho]');
     if (at0) { criarAtalho(at0.getAttribute('data-atalho') || ''); return; }
   });
@@ -2576,12 +2692,13 @@ main:focus, main:focus-visible { outline: none; }
         R.s[p[0]] = m;
         var top = el.closest('.topico'), t = S[ar].filter(function (x) { return x.k === p[0]; })[0], n = Object.keys(m).length;
         var d = top.querySelector('[data-desc]'); d.textContent = desc(t, m); d.classList.toggle('alt', n > 0);
-        atualizarDiag(ar);
+        atualizarDiag(ar); atualizarOrient(ar);
         var c = top.querySelector('[data-cont]'); c.textContent = n ? n + ' sinal(is)' : 'Normal'; c.className = 'chip ' + (n ? 'lv-alto' : 'lv-baixo');
       } else if (el.hasAttribute('data-comp')) { R.c = R.c || {}; R.c[el.getAttribute('data-comp')] = el.value; }
       else if (el.hasAttribute('data-diag')) { R.diag = R.diag || {}; if (el.checked) R.diag[el.getAttribute('data-diag')] = true; else delete R.diag[el.getAttribute('data-diag')]; el.closest('.diag').classList.toggle('on', el.checked); }
-      else if (el.hasAttribute('data-plano')) { R.plano = R.plano || {}; if (el.checked) R.plano[el.getAttribute('data-plano')] = true; else delete R.plano[el.getAttribute('data-plano')]; }
-      else if (el.hasAttribute('data-cond')) { R.cond = R.cond || {}; R.cond[el.getAttribute('data-cond')] = el.checked; } else R[el.getAttribute('data-f')] = el.value;
+      else if (el.hasAttribute('data-plano')) { R.plano = R.plano || {}; if (el.checked) R.plano[el.getAttribute('data-plano')] = true; else delete R.plano[el.getAttribute('data-plano')]; setTimeout(function () { atualizarOrient(ar); }, 0); }
+      else if (el.hasAttribute('data-cond')) { R.cond = R.cond || {}; R.cond[el.getAttribute('data-cond')] = el.checked; setTimeout(function () { atualizarOrient(ar); }, 0); }
+      else R[el.getAttribute('data-f')] = el.value;
       desenharDoc(ar);
     }
     salvar();
